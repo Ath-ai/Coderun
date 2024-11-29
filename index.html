@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Page HTML Runner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #upload-container {
+            text-align: center;
+        }
+        #file-input {
+            display: none;
+        }
+        #upload-btn {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        #full-page-content {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="upload-container">
+        <h1>Full Page HTML Runner</h1>
+        <input type="file" id="file-input" accept=".html">
+        <button id="upload-btn">Upload and Run HTML</button>
+    </div>
+    <iframe id="full-page-content"></iframe>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const uploadBtn = document.getElementById('upload-btn');
+        const fullPageContent = document.getElementById('full-page-content');
+        const uploadContainer = document.getElementById('upload-container');
+
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    fullPageContent.srcdoc = content;
+                    uploadContainer.style.display = 'none';
+                    fullPageContent.style.display = 'block';
+                    saveCookie(content);
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function saveCookie(content) {
+            document.cookie = `lastUpload=${encodeURIComponent(content)}; max-age=86400; path=/`;
+        }
+
+        function loadLastUpload() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'lastUpload') {
+                    fullPageContent.srcdoc = decodeURIComponent(value);
+                    uploadContainer.style.display = 'none';
+                    fullPageContent.style.display = 'block';
+                    break;
+                }
+            }
+        }
+
+        // Load last upload when the page loads
+        window.addEventListener('load', loadLastUpload);
+    </script>
+</body>
+</html>
